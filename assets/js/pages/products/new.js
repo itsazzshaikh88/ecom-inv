@@ -40,7 +40,6 @@ async function submitForm(e) {
             const data = await response.json();
             toasterNotification({ type: 'success', message: data?.message || 'Record Saved Successfully' });
             clearForm();
-            fetchProductList();
         } else {
             const errorData = await response.json();
             if (errorData.status === 422) {
@@ -167,7 +166,7 @@ function toggleElementDisabled(elementID, action = 'enable') {
 }
 
 // Fetch Categories and show
-async function fetchCategories() {
+async function fetchCategories(selectedCategory = null) {
     try {
         // Check token exist
         const authToken = validateUserAuthToken();
@@ -199,7 +198,7 @@ async function fetchCategories() {
 
         const data = await response.json();
 
-        renderCategories(data.categories || []);
+        renderCategories(data.categories || [], selectedCategory);
 
     } catch (error) {
         toasterNotification({ type: 'error', message: 'Request failed: ' + error.message });
@@ -210,16 +209,19 @@ async function fetchCategories() {
     }
 }
 
-function renderCategories(categories) {
+function renderCategories(categories, selectedCategory = null) {
     if (!categories) return '';
+    let categoryElement = document.getElementById("category_id");
     if (categories && categories.length > 0) {
-        let categoryElement = document.getElementById("category_id");
         let content = '<option value="">Choose Category</option>';
         categories.forEach((category) => {
             content += `<option value="${category?.category_id}">${category?.name}</option>`;
         });
         categoryElement.innerHTML = content;
     }
+
+    if (selectedCategory)
+        categoryElement.value = selectedCategory;
 }
 
 function renderUOMS(selected = null) {
@@ -233,8 +235,12 @@ function renderUOMS(selected = null) {
 }
 
 // Fetch Sub Categories
-async function fetchSubcategories(element) {
-    const category_id = element.value;
+async function fetchSubcategories(element = null, categoryID = null, subCatgoryID = null, source = 'HTMLSelectElement') {
+    let category_id;
+    if (source === 'HTMLSelectElement')
+        category_id = element.value;
+    else
+        category_id = categoryID;
     if (category_id) {
         try {
             // Check token exist
@@ -266,7 +272,7 @@ async function fetchSubcategories(element) {
 
             const data = await response.json();
 
-            renderSubcategories(data.subcategories || []);
+            renderSubcategories(data.subcategories || [], subCatgoryID);
 
         } catch (error) {
             toasterNotification({ type: 'error', message: 'Request failed: ' + error.message });
@@ -279,18 +285,30 @@ async function fetchSubcategories(element) {
     }
 }
 
-function renderSubcategories(subcategories) {
+function renderSubcategories(subcategories, selectedSubCategory = null) {
     if (!subcategories) return '';
+    let subcategoryElement = document.getElementById("sub_category_id");
     if (subcategories && subcategories.length > 0) {
-        let subcategoryElement = document.getElementById("sub_category_id");
         let content = '<option>Choose Sub Category</option>';
         subcategories.forEach((subcategory) => {
             content += `<option value="${subcategory?.subcategory_id}">${subcategory?.name}</option>`;
         });
         subcategoryElement.innerHTML = content;
     }
+    if (selectedSubCategory)
+        subcategoryElement.value = selectedSubCategory;
 }
 
+function renderVariants(variants) {
+    if (!variants || variants?.length <= 0) {
+        addVariantRow();
+    } else {
+        let content = '';
+        variants.forEach((variant) => {
+            content += ``
+        })
+    }
+}
 
 
 // ADD REMOVE OPTIONS
@@ -365,7 +383,7 @@ async function fetchUOMS(type = null) {
         const authToken = validateUserAuthToken();
         if (!authToken) return;
 
-        const url = `${apiURL}uom`;
+        const url = `${apiURL}UOM`;
         const filters = filterCriterias([]);
 
         const response = await fetch(url, {
@@ -442,6 +460,9 @@ async function fetchProductToDisplayForEdit(productID) {
             throw new Error(errorMessage);
         }
 
+        fetchCategories(data?.data?.product?.category_id);
+
+        fetchSubcategories(null, data?.data?.product?.category_id, data?.data?.product?.sub_category_id, 'load');
         // fetchRoles(data?.data?.role_id || 0);
         displayProductInfo(data.data);
         // Fetch roles and set it to selected role
@@ -453,4 +474,15 @@ async function fetchProductToDisplayForEdit(productID) {
     } finally {
         fullPageLoader.classList.toggle("d-none");
     }
+}
+
+function displayProductInfo(productDetails) {
+    if (!productDetails) return;
+    const { product, images, variants } = productDetails;
+
+    if (Object.keys(product).length > 0) {
+        populateFormFields(product);
+    }
+
+    renderVariants(variants);
 }

@@ -127,20 +127,6 @@ class Products extends App_controller
                 $this->form_validation->set_rules($rule['key'], $rule['label'], $rule['validations']);
 
 
-            // // Run validation
-            // if ($this->form_validation->run() == FALSE) {
-            //     // Validation failed, prepare response with errors
-            //     $errors = $this->form_validation->error_array();
-
-            //     $this->sendHTTPResponse(422, [
-            //         'status' => 422,
-            //         'error' => 'Unprocessable Entity',
-            //         'message' => 'The submitted data failed validation.',
-            //         'validation_errors' => $errors
-            //     ]);
-            //     return;
-            // }
-
             // Retrieve POST data and sanitize it
             $data = $this->input->post();
             $data = array_map([$this->security, 'xss_clean'], $data);
@@ -165,12 +151,12 @@ class Products extends App_controller
             if ($createdProduct) {
                 $this->sendHTTPResponse(201, [
                     'status' => 201,
-                    'message' => "Category Saved Successfully.",
+                    'message' => "Product Saved Successfully.",
                     'type' => 'insert',
                     'data' => $createdProduct,
                 ]);
             } else {
-                throw new Exception('Failed to create new category.');
+                throw new Exception('Failed to create new Product.');
             }
         } catch (Exception $e) {
             // Catch any unexpected errors and respond with a standardized error
@@ -183,7 +169,7 @@ class Products extends App_controller
         }
     }
 
-    public function details($categoryID)
+    public function details($productID)
     {
         // Check if the authentication is valid
         $isAuthorized = $this->isAuthorized();
@@ -197,28 +183,28 @@ class Products extends App_controller
         };
 
         // Validate input and check if `productUUID` is provided
-        if (!isset($categoryID)) {
+        if (!isset($productID)) {
             return $this->output
                 ->set_status_header(400)
                 ->set_content_type('application/json')
                 ->set_output(json_encode([
                     'status' => 'error',
                     'code' => 400,
-                    'message' => 'Invalid category ID, Please provide category id to fetch details.'
+                    'message' => 'Invalid product ID, Please provide product id to fetch details.'
                 ]));
         }
 
-        $category = $this->Product_model->get_category_by_id($categoryID);
+        $product = $this->Product_model->get_product_by_id($productID);
 
         // Check if product data exists
-        if (empty($category)) {
+        if (empty($product)) {
             return $this->output
                 ->set_status_header(404)
                 ->set_content_type('application/json')
                 ->set_output(json_encode([
                     'status' => 'error',
                     'code' => 404,
-                    'message' => 'category details not found.'
+                    'message' => 'product details not found.'
                 ]));
         }
 
@@ -229,8 +215,8 @@ class Products extends App_controller
             ->set_output(json_encode([
                 'status' => 'success',
                 'code' => 200,
-                'message' => 'category details retrieved successfully',
-                'data' => $category
+                'message' => 'product details retrieved successfully',
+                'data' => $product
             ]));
     }
 

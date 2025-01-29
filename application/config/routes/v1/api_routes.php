@@ -14,7 +14,7 @@ function beautify($array, $exit = false)
 $api_version = 'api/v1';
 
 // Define resources
-$resources = ['users', 'roles', 'categories', 'products', 'orders', 'subcategories', 'uom'];
+$resources = ['users', 'roles', 'categories', 'products', 'orders', 'subcategories', 'UOM'];
 
 foreach ($resources as $resource) {
     // List all

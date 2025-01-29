@@ -51,7 +51,24 @@ class Product_model extends CI_Model
     }
     function get_product_by_id($id)
     {
-        return $this->db->where('category_id', $id)->get('categories')->row_array();
+        $this->db->select('p.*, c.name as category_name , s.name as subcategory_name')
+            ->from('products p')
+            ->join('categories c', 'c.category_id = p.category_id', 'left')
+            ->join('subcategories s', 's.subcategory_id = p.sub_category_id', 'left')
+            ->where('p.id', $id)
+            ->order_by('p.name', 'ASC'); // Order by product name (you can change it as needed)
+        $product['product'] = $this->db->get()->row_array();
+
+        $product['images'] = $this->db->select('i.*')
+            ->from('product_images i')
+            ->where('i.id', $id)
+            ->order_by('i.id', 'ASC');
+
+        $product['variants'] = $this->db->select('v.*')
+            ->from('product_variants v')
+            ->where('v.id', $id)
+            ->order_by('v.id', 'ASC');
+        return $product;
     }
     function add_product($data, $userid)
     {
