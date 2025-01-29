@@ -1,0 +1,196 @@
+/* Core Font Size Classes */
+.app-fs-xs {
+    font-size: 8px;
+}
+
+/* Extra Small */
+.app-fs-sm {
+    font-size: 12px;
+}
+
+/* Small */
+.app-fs-md {
+    font-size: 16px;
+}
+
+/* Medium */
+.app-fs-lg {
+    font-size: 24px;
+}
+
+/* Large */
+.app-fs-xl {
+    font-size: 32px;
+}
+
+/* Extra Large */
+.app-fs-2xl {
+    font-size: 40px;
+}
+
+/* 2X Large */
+.app-fs-3xl {
+    font-size: 48px;
+}
+
+/* 3X Large */
+.app-fs-4xl {
+    font-size: 56px;
+}
+
+/* 4X Large */
+.app-fs-5xl {
+    font-size: 64px;
+}
+
+.err-lbl p,
+.err-lbl-mdl p {
+    margin-bottom: 0px !important;
+    font-weight: normal;
+    font-size: 12px !important;
+}
+
+.err-lbl-mdl {
+    margin-bottom: 0px !important;
+    font-weight: normal;
+    font-size: 10px !important;
+}
+
+/* pagination buttons  */
+.pagination-button-group {
+    display: flex;
+    align-items: center;
+}
+
+.pagination-button-group .btn {
+    width: 30px !important;
+    height: 30px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid #77777730 !important;
+    border-bottom: 1px solid #77777730 !important;
+    border-radius: 0px !important;
+    padding: 10px !important;
+    text-align: center;
+}
+
+.pagination-button-group .btn i {
+    padding: 0px !important;
+    color: #333 !important;
+    font-weight: bold;
+    font-size: 14px !important;
+}
+
+.paginate-border-left {
+    border-left: 1px solid #77777730 !important;
+}
+
+.paginate-border-right {
+    border-right: 1px solid #77777730 !important;
+}
+
+.pagination-button-group .input-field,
+.input-field:focus {
+    width: 40px;
+    height: 30px;
+    border: 1px solid #77777730 !important;
+    text-align: center;
+    box-shadow: none !important;
+    outline: none !important;
+    font-weight: 500;
+    color: #333;
+}
+
+.no-data-img-table {
+    width: 20%;
+}
+
+.floating {
+    animation: float ease-in-out infinite;
+    animation-duration: var(--float-duration, 5s);
+    /* Default duration is 5s if not set */
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+
+/* Loading Animations  */
+/* Full page loader styling */
+#full-page-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.8);
+    /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    /* Ensure loader is on top */
+}
+
+/* Spinner styling */
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 2px solid #ccc;
+    border-top-color: #007bff;
+    /* Color for spinner */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Skeleton Loaders  */
+
+.skeleton-box {
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    display: inline-block;
+    animation: skeleton-loading 1.2s infinite linear;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-color: #e0e0e0;
+    }
+
+    50% {
+        background-color: #f0f0f0;
+    }
+
+    100% {
+        background-color: #e0e0e0;
+    }
+}
+
+
+
+/* Theme Customized Codes  */
+.form-control, .form-control:focus {
+    box-shadow: none !important;
+}
