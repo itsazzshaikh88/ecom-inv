@@ -1,5 +1,8 @@
 let cachedUOMs = [];
 
+let selectedCategory = null;
+let selectedUOM = null;
+
 async function submitForm(e) {
     e.preventDefault();
     const form = e.target;
@@ -62,13 +65,6 @@ function clearForm() {
     const form = document.getElementById("form")
     form?.reset();
     document.getElementById("id").value = '';
-
-    // Clear variant table and images table
-    document.getElementById('file-container').innerHTML = '';
-    addFileInput();
-    document.querySelector('#variant-table tbody').innerHTML = '';
-    addVariantRow();
-
 }
 
 async function fetchCategoryDetailsForEdit(categoryID) {
@@ -228,7 +224,7 @@ function renderUOMS(selected = null) {
     let content = '<option value="">Choose UOM</option>';
     if (cachedUOMs && cachedUOMs.length > 0) {
         cachedUOMs.forEach((uom) => {
-            content += `<option value="${uom?.id}">${uom?.name} - ${uom?.abbreviation}</option>`;
+            content += `<option ${selected == uom?.id ? 'selected' : ''} value="${uom?.id}">${uom?.name} - ${uom?.abbreviation}</option>`;
         });
     }
     return content;
@@ -299,17 +295,12 @@ function renderSubcategories(subcategories, selectedSubCategory = null) {
         subcategoryElement.value = selectedSubCategory;
 }
 
-function renderVariants(variants) {
-    if (!variants || variants?.length <= 0) {
-        addVariantRow();
-    } else {
-        let content = '';
-        variants.forEach((variant) => {
-            content += ``
-        })
+function renderUOMSSelectOptions(selected = null) {
+    const selectElement = document.getElementById("uoms");
+    if (selectElement) {
+        selectElement.innerHTML = renderUOMS(selected);
     }
 }
-
 
 // ADD REMOVE OPTIONS
 function addVariantRow() {
@@ -377,7 +368,7 @@ function removeFileInput(element) {
 }
 
 // Fetch unit of measurements and show
-async function fetchUOMS(type = null) {
+async function fetchUOMS(type = null, selectedOption = null) {
     try {
         // Check token exist
         const authToken = validateUserAuthToken();
@@ -406,9 +397,7 @@ async function fetchUOMS(type = null) {
         const data = await response.json();
 
         cachedUOMs = data?.uoms || {};
-        if (type === 'load') {
-            addVariantRow();
-        }
+        renderUOMSSelectOptions(selectedUOM);
 
     } catch (error) {
         toasterNotification({ type: 'error', message: 'Request failed: ' + error.message });
@@ -459,11 +448,15 @@ async function fetchProductToDisplayForEdit(productID) {
             const errorMessage = data.message || `Error: ${response.status} ${response.statusText}`;
             throw new Error(errorMessage);
         }
-
-        fetchCategories(data?.data?.product?.category_id);
-
-        fetchSubcategories(null, data?.data?.product?.category_id, data?.data?.product?.sub_category_id, 'load');
-        // fetchRoles(data?.data?.role_id || 0);
+        selectedCategory = data?.data?.category_id;
+        selectedUOM = data?.data?.category_id;
+        fetchCategories(data?.data?.category_id);
+        if (cachedUOMs && cachedUOMs?.length > 0) {
+            renderUOMSSelectOptions(selectedUOM);
+        } else {
+            fetchUOMS('load', selectedUOM);
+        }
+        fetchSubcategories(null, data?.data?.category_id, data?.data?.sub_category_id, 'load');
         displayProductInfo(data.data);
         // Fetch roles and set it to selected role
     } catch (error) {
@@ -478,11 +471,9 @@ async function fetchProductToDisplayForEdit(productID) {
 
 function displayProductInfo(productDetails) {
     if (!productDetails) return;
-    const { product, images, variants } = productDetails;
 
-    if (Object.keys(product).length > 0) {
-        populateFormFields(product);
+
+    if (productDetails && typeof productDetails === 'object' && Object.keys(productDetails).length > 0) {
+        populateFormFields(productDetails);
     }
-
-    renderVariants(variants);
 }

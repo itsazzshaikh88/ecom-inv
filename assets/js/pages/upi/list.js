@@ -1,4 +1,4 @@
-const tableId = "products-table";
+const tableId = "upi-table";
 const table = document.getElementById(tableId);
 const tbody = document.querySelector(`#${tableId} tbody`);
 const numberOfHeaders = document.querySelectorAll(`#${tableId} thead th`).length || 0;
@@ -17,60 +17,43 @@ const paginate = new Pagination({
 paginate.pageLimit = 10; // Set your page limit here
 
 
-function renderProductList(products) {
-    const productsTbody = document.querySelector(`#${tableId} tbody`);
+function renderUPIList(upi) {
+    const upiTbody = document.querySelector(`#${tableId} tbody`);
 
-    if (!products) {
-        throw new Error("products list not found");
+    if (!upi) {
+        throw new Error("upi list not found");
     }
 
-    if (products && products.length > 0) {
+    if (upi && upi.length > 0) {
         let content = ''
         let counter = 0;
-        products.forEach(product => {
-            let stockIcon = `${parseFloat(product.stock_quantity || 0) < parseFloat(product.low_stock_threshold || 0) ? "<i class='fa-solid fa-arrow-down text-danger'></i>" : "<i class='fa-solid fa-arrow-up text-success'></i>"}`;
-            let productImages = JSON.parse(product?.images || '');
-            let productImage = '';
-            if (productImages) {
-                productImage = productImages[0] || '';
-            }
-
-
-            content += `<tr data-product-id=${product.id}>
+        upi.forEach(upi => {
+            let upiImage = `uploads/upi/${upi.qr_code_image}`;
+            content += `<tr data-upi-id=${upi.upi_id}>
                             <td>${++counter}</td>
+                            <td><p class="mb-0">${upi.upi_name}</p></td>
+                            <td><a class="" href="${upiImage || 'javascript:void(0)'}">View</a></td>
                             <td>
-                                <div class="product-listing-image-container">
-                                    <img src="uploads/product_images/${productImage}" alt="${product.name || ''}" />
-                                </div>
+                            <span class="badge badge-phoenix badge-phoenix-${upi.is_active == '1' ? 'success' : 'danger'}">${upi.is_active == '1' ? 'Active' : 'In-Active'}</span>
                             </td>
-                            <td class="fw-bold text-primary"><p class="mb-0">${product.name || ''}</p></td>
-                            <td><p class="mb-0">${product.category_name || ''}</p></td>
-                            <td><p class="mb-0">${product.product_price || ''}</p></td>
-                            <td><p class="mb-0">${product.selling_price || ''}</p></td>
-                            <td><p class="mb-0 fw-bold">${stockIcon} ${product.stock_quantity || '0'}  </p></td>
-                            <td><p class="mb-0">${product.is_featured === '1' ? 'Yes' : 'No'}</p></td>
-                            <td>
-                            <span class="badge badge-phoenix badge-phoenix-${product.is_active == '1' ? 'success' : 'danger'}">${product.is_active == '1' ? 'Active' : 'In-Active'}</span>
-                            </td>
-                            <td>${formatAppDate(product?.created_at)}</td>
                             <td class="text-center">
                                 <div class="d-flex align-items-center justify-content-center gap-2">
-                                    <a href="products/new/${product?.id}/${product?.slug}?action=edit" class="text-secondary app-fs-md" title="Edit product"><i class="fa-solid fa-file-pen fs-9"></i></a>
-                                    <a href="javascript:void(0)" onclick="deleteProduct(${product.id})" class="text-danger app-fs-md" title="Delete product"><i class="fa-solid fa-trash-can fs-9"></i></a>
+                                    <a href="javascript:void(0)" onclick="fetchUPIDetailsForEdit(${upi.id})" class="text-secondary app-fs-md" title="Edit upi"><i class="fa-solid fa-file-pen fs-9"></i></a>
+                                    <a href="javascript:void(0)" onclick="deleteUPI(${upi.id})" class="text-danger app-fs-md" title="Delete upi"><i class="fa-solid fa-trash-can fs-9"></i></a>
                                 </div>
                             </td>
                         </tr>`
         });
-        productsTbody.innerHTML = '';
-        productsTbody.innerHTML = content;
+        upiTbody.innerHTML = '';
+        upiTbody.innerHTML = content;
 
     } else {
-        productsTbody.innerHTML = renderNoResponseCode({ colspan: numberOfHeaders });
+        upiTbody.innerHTML = renderNoResponseCode({ colspan: numberOfHeaders });
     }
 
 }
 
-async function fetchProductList() {
+async function fetchUPIList() {
     try {
         // Check token exist
         const authToken = validateUserAuthToken();
@@ -80,7 +63,7 @@ async function fetchProductList() {
         const skeletonLoaderContent = commonSkeletonContent(numberOfHeaders);
         repeatAndAppendSkeletonContent(tableId, skeletonLoaderContent, paginate.pageLimit || 0);
 
-        const url = `${apiURL}products`;
+        const url = `${apiURL}UPI`;
         const filters = filterCriterias([]);
 
         const response = await fetch(url, {
@@ -104,7 +87,7 @@ async function fetchProductList() {
         paginate.totalPages = parseFloat(data?.pagination?.total_pages) || 0;
         paginate.totalRecords = parseFloat(data?.pagination?.total_records) || 0;
 
-        renderProductList(data.products || []);
+        renderUPIList(data.upi || []);
 
     } catch (error) {
         toasterNotification({ type: 'error', message: 'Request failed: ' + error.message });
@@ -113,10 +96,10 @@ async function fetchProductList() {
     }
 }
 
-async function deleteProduct(productID) {
+async function deleteUPI(upiID) {
 
-    if (!productID) {
-        throw new Error("Invalid product ID, Please try Again");
+    if (!upiID) {
+        throw new Error("Invalid upi ID, Please try Again");
     }
 
     try {
@@ -124,7 +107,7 @@ async function deleteProduct(productID) {
         // Show a confirmation alert
         const confirmation = await Swal.fire({
             title: "Are you sure?",
-            text: "Do you really want to delete product? This action cannot be undone.",
+            text: "Do you really want to delete upi? This action cannot be undone.",
             icon: "warning",
             showCancelButton: true,
             confirmButtonText: "Yes, delete it",
@@ -143,8 +126,8 @@ async function deleteProduct(productID) {
 
         // Show a non-closable alert box while the activity is being deleted
         Swal.fire({
-            title: "Deleting product ...",
-            text: "Please wait while the product is being deleted.",
+            title: "Deleting upi ...",
+            text: "Please wait while the upi is being deleted.",
             icon: "info",
             showConfirmButton: false,
             allowOutsideClick: false,
@@ -153,7 +136,7 @@ async function deleteProduct(productID) {
             },
         });
 
-        const url = `${apiURL}/products/delete/${productID}`;
+        const url = `${apiURL}/UPI/delete/${upiID}`;
 
         const response = await fetch(url, {
             method: 'DELETE', // Change to DELETE for a delete request
@@ -176,7 +159,7 @@ async function deleteProduct(productID) {
             // Here, we directly handle the deletion without checking data.status
             toasterNotification({ type: 'success', message: data?.message || "Record Deleted Successfully" });
 
-            fetchProductList();
+            fetchUPIList();
         } else {
             throw new Error(data.message || 'Failed to delete users details');
         }
@@ -189,14 +172,14 @@ async function deleteProduct(productID) {
 
 document.addEventListener('DOMContentLoaded', () => {
     // Fetch initial User data
-    fetchProductList();
+    fetchUPIList();
 });
 function handlePagination(action) {
     paginate.paginate(action); // Update current page based on the action
-    fetchProductList(); // Fetch records
+    fetchUPIList(); // Fetch records
 }
 
 function filterContacts() {
     paginate.currentPage = 1;
-    fetchProductList();
+    fetchUPIList();
 }

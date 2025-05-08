@@ -1,4 +1,4 @@
-<div class="content bg-white">
+<div class="content">
     <nav class="mb-3" aria-label="breadcrumb">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="#!">Inventory</a></li>
@@ -27,30 +27,30 @@
                                 <h5 class="mb-3">General Details</h5>
                                 <div class="row mb-1">
                                     <label class="col-sm-3 col-form-label col-form-label-sm" for="category_id">Product Category <span class="text-danger">*</span> <span class="float-end d-none d-lg-block">:</span> </label>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-3">
                                         <div class="d-flex align-items-center gap-2">
-                                            <select class="form-control form-control-sm" name="category_id" id="category_id" onchange="fetchSubcategories(this)">
+                                            <select class="form-control form-control-sm" name="category_id" id="category_id">
                                                 <option value="">Choose</option>
                                             </select>
                                             <p class="mb-0 d-none" id="category-loader"><i class="fa-solid fa-spinner fa-spin text-primary"></i></p>
                                         </div>
                                         <p class="text-danger err-lbl mb-0 app-fs-sm" id="lbl-category_id"></p>
                                     </div>
-                                </div>
-                                <div class="row mb-1">
-                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="sub_category_id">Product Sub Category <span class="float-end d-none d-lg-block">:</span> </label>
-                                    <div class="col-sm-4">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <select class="form-control form-control-sm" name="sub_category_id" id="sub_category_id">
-                                                <option value="">Choose</option>
-                                            </select>
-                                            <p class="mb-0 d-none" id="sub-category-loader"><i class="fa-solid fa-spinner fa-spin text-primary"></i></p>
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="is_featured"><span class="float-end d-none d-lg-block">Featured On Homepage:</span> </label>
+                                    <div class="col-sm-3">
+                                        <div class="d-flex align-items-center gap-4">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <input type="radio" name="is_featured" id=""> Yes
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <input checked type="radio" name="is_featured" id=""> No
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row mb-1">
                                     <label class="col-sm-3 col-form-label col-form-label-sm" for="name">Product Name <span class="text-danger">*</span> <span class="float-end d-none d-lg-block">:</span> </label>
-                                    <div class="col-sm-9">
+                                    <div class="col-sm-8">
                                         <input class="form-control form-control-sm" type="text" name="name" id="name" placeholder="Enter Product Name ...">
                                         <p class="text-danger err-lbl mb-0 app-fs-sm" id="lbl-name"></p>
                                     </div>
@@ -72,49 +72,7 @@
                                         <textarea rows="5" class="form-control form-control-sm" rows="3" name="description" id="description" placeholder="Enter Description ..."></textarea>
                                     </div>
                                 </div>
-                                <div class="row mb-1">
-                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="short_description">Short Description <span class="float-end d-none d-lg-block">:</span> </label>
-                                    <div class="col-sm-8">
-                                        <textarea rows="5" class="form-control form-control-sm" rows="3" name="short_description" id="short_description" placeholder="Enter Description ..."></textarea>
-                                    </div>
-                                </div>
-                                <div class="row mb-1">
-                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="sku">SKU <span class="float-end d-none d-lg-block">:</span> </label>
-                                    <div class="col-sm-3">
-                                        <input class="form-control form-control-sm" type="text" name="sku" id="sku" placeholder="Enter Product sku ...">
-                                    </div>
-                                    <label class="col-sm-3 col-form-label col-form-label-sm text-end" for="barcode">Barcode Number: </label>
-                                    <div class="col-sm-3">
-                                        <input class="form-control form-control-sm" type="text" name="barcode" id="barcode" placeholder="Enter Barcode Data ...">
-                                    </div>
-                                </div>
-                                <div class="row mb-1">
-                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="stock_quantity">Stock Quantity<span class="text-danger">*</span><span class="float-end d-none d-lg-block">:</span> </label>
-                                    <div class="col-sm-3">
-                                        <input class="form-control form-control-sm" type="text" name="stock_quantity" id="stock_quantity" placeholder="Enter Product Name ...">
-                                        <p class="text-danger err-lbl mb-0 app-fs-sm" id="lbl-stock_quantity"></p>
-                                    </div>
-                                    <label class="col-sm-3 col-form-label col-form-label-sm text-end" for="low_stock_threshold">Low Stock Threshold <span class="text-danger">*</span> : </label>
-                                    <div class="col-sm-3">
-                                        <input class="form-control form-control-sm" type="text" name="low_stock_threshold" id="low_stock_threshold" placeholder="Enter Product Name ...">
-                                        <p class="text-danger err-lbl mb-0 app-fs-sm" id="lbl-low_stock_threshold"></p>
-                                    </div>
-                                </div>
-                                <div class="row mb-1">
-                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="is_featured">Featured On Homepage <span class="float-end d-none d-lg-block">:</span> </label>
-                                    <div class="col-sm-8 pt-2">
-                                        <div class="d-flex align-items-center gap-4">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <input type="radio" name="is_featured" id=""> Yes
-                                            </div>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <input checked type="radio" name="is_featured" id=""> No
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row my-4">
+                                <!-- <div class="row my-4">
                                     <div class="col-md-8 bg-light py-3">
                                         <div class="d-flex align-items-center justify-content-between">
                                             <h5 class="mb-3">Product Variants</h5>
@@ -148,8 +106,50 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div> -->
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="uoms">Unit of Measurement<span class="text-danger">*</span><span class="float-end d-none d-lg-block">:</span> </label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control form-control-sm" name="uoms" id="uoms">
+                                        </select>
+                                        <p class="text-danger err-lbl mb-0 app-fs-sm" id="lbl-uoms"></p>
+                                    </div>
+                                    <label class="col-sm-2 col-form-label col-form-label-sm text-end" for="qty_measure">Qty/Measure <span class="text-danger">*</span> : </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control form-control-sm" type="text" name="qty_measure" id="qty_measure" placeholder="Enter Measure of product">
+                                        <p class="text-danger err-lbl mb-0 app-fs-sm" id="lbl-qty_measure"></p>
+                                    </div>
                                 </div>
-
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="product_price">Product Price / MRP<span class="text-danger">*</span><span class="float-end d-none d-lg-block">:</span> </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control form-control-sm" type="text" name="product_price" id="product_price" placeholder="Enter product price">
+                                        <p class="text-danger err-lbl mb-0 app-fs-sm" id="lbl-product_price"></p>
+                                    </div>
+                                    <label class="col-sm-2 col-form-label col-form-label-sm text-end" for="selling_price">Selling Price <span class="text-danger">*</span> : </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control form-control-sm" type="text" name="selling_price" id="selling_price" placeholder="Enter selling price">
+                                        <p class="text-danger err-lbl mb-0 app-fs-sm" id="lbl-selling_price"></p>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="stock_quantity">Stock Quantity<span class="text-danger">*</span><span class="float-end d-none d-lg-block">:</span> </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control form-control-sm" type="text" name="stock_quantity" id="stock_quantity" placeholder="Enter onhand stock qty">
+                                        <p class="text-danger err-lbl mb-0 app-fs-sm" id="lbl-stock_quantity"></p>
+                                    </div>
+                                    <label class="col-sm-2 col-form-label col-form-label-sm text-end" for="low_stock_threshold">Low Stock Threshold <span class="text-danger">*</span> : </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control form-control-sm" type="text" name="low_stock_threshold" id="low_stock_threshold" placeholder="Enter lowest qty to alert ...">
+                                        <p class="text-danger err-lbl mb-0 app-fs-sm" id="lbl-low_stock_threshold"></p>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="product_image">Product Images <span class="float-end d-none d-lg-block">:</span> </label>
+                                    <div class="col-sm-5">
+                                        <input type="file" class="form-control form-control-sm" name="product_image[]" multiple id="product_image" placeholder="Enter product_image ..."></input>
+                                    </div>
+                                </div>
                                 <div class="row mt-4">
                                     <div class="col-md-12 text-center">
                                         <button class="btn btn-sm btn-success" id="submit-btn"> <i class="fa-solid fa-plus"></i> Save Product Details</button>

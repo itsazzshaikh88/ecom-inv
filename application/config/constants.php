@@ -89,3 +89,11 @@ defined('EXIT__AUTO_MAX')      or define('EXIT__AUTO_MAX', 125); // highest auto
 define('SECRET_KEY', '7d0a9bd8ba1c4b388f4e647a13e30ff0');
 define('API_VERSION', 'v1');
 define('APP_NAME', 'DEVELOPMENT');
+
+if (in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1', '::1'])) {
+    $front_store = 'http://localhost/ecom/';
+} else {
+    $front_store = 'https://jam.juveriasofts.com/ecom/';
+}
+
+define('FRONT_STORE', $front_store);

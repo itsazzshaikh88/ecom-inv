@@ -14,7 +14,7 @@ function beautify($array, $exit = false)
 $api_version = 'api/v1';
 
 // Define resources
-$resources = ['users', 'roles', 'categories', 'products', 'orders', 'subcategories', 'UOM'];
+$resources = ['users', 'roles', 'categories', 'products', 'orders', 'subcategories', 'UOM', 'UPI'];
 
 foreach ($resources as $resource) {
     // List all
@@ -32,3 +32,7 @@ foreach ($resources as $resource) {
     // Delete
     $route["$api_version/$resource/delete/(:num)"] = "$resource/delete/$1";
 }
+
+$route["$api_version/orders/update-order-details/(:num)"] = "orders/update_order_status/$1";
+$route["$api_version/orders/users-list"] = "orders/users_list";
+

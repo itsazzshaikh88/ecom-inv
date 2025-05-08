@@ -34,6 +34,8 @@ $this->load->view('loaders/full-page-loader');
         else
             fullPageLoader.classList.add("d-none");
     }
+
+    const FRONT_STORE = "<?= FRONT_STORE ?>";
 </script>
 
 <script src="vendors/popper/popper.min.js"></script>

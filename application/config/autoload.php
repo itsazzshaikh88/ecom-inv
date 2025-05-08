@@ -51,4 +51,4 @@ $autoload['language'] = array();
 |
 |	$autoload['model'] = array('first_model' => 'first');
 */
-$autoload['model'] = array('Auth_model', 'User_model', 'Category_model', 'Subcategory_model', 'Product_model', 'UOM_model');
+$autoload['model'] = array('Auth_model', 'User_model', 'Category_model', 'Subcategory_model', 'Product_model', 'UOM_model', 'Order_model', 'UPI_model');

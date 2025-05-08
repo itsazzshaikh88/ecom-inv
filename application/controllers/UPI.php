@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Products extends App_controller
+class UPI extends App_controller
 {
     public function __construct()
     {
@@ -11,28 +11,10 @@ class Products extends App_controller
     public function index()
     {
         $this->isUserAuthenticated();
-        $data['view_path'] = 'pages/products/list';
-        $data['navlink'] = ['mainlink' => 'products', 'sublink' => ''];
-        $data['scripts'] = ['assets/js/pages/products/list.js'];
-        $data['page_title'] = 'Products';
-        $this->load->view('layout', $data);
-    }
-    public function new()
-    {
-        $this->isUserAuthenticated();
-        $data['view_path'] = 'pages/products/new';
-        $data['navlink'] = ['mainlink' => 'products', 'sublink' => ''];
-        $data['scripts'] = ['assets/js/pages/products/new.js'];
-        $data['page_title'] = 'Product Management';
-        $this->load->view('layout', $data);
-    }
-
-    public function view()
-    {
-        $this->isUserAuthenticated();
-        $data['view_path'] = 'pages/categories/view';
-        $data['navlink'] = ['mainlink' => 'categories', 'sublink' => ''];
-        $data['scripts'] = ['assets/js/pages/categories/view.js'];
+        $data['view_path'] = 'pages/upi/list';
+        $data['navlink'] = ['mainlink' => 'upi', 'sublink' => ''];
+        $data['scripts'] = ['assets/js/pages/upi/list.js', 'assets/js/pages/upi/new.js'];
+        $data['page_title'] = 'Management';
         $this->load->view('layout', $data);
     }
 
@@ -73,17 +55,17 @@ class Products extends App_controller
         $filters = isset($data['filters']) ? $data['filters'] : [];
         $search = isset($data['search']) ? $data['search'] : [];
 
-        $total_products = $this->Product_model->get_products('total', $limit, $currentPage, $filters, $search);
-        $products = $this->Product_model->get_products('list', $limit, $currentPage, $filters, $search);
+        $total_upi = $this->UPI_model->get_upi('total', $limit, $currentPage, $filters, $search);
+        $upi = $this->UPI_model->get_upi('list', $limit, $currentPage, $filters, $search);
 
         $response = [
             'pagination' => [
-                'total_records' => $total_products,
-                'total_pages' => generatePages($total_products, $limit),
+                'total_records' => $total_upi,
+                'total_pages' => generatePages($total_upi, $limit),
                 'current_page' => $currentPage,
                 'limit' => $limit
             ],
-            'products' => $products,
+            'upi' => $upi,
         ];
         return $this->output
             ->set_content_type('application/json')
@@ -117,50 +99,61 @@ class Products extends App_controller
 
             // Set validation rules
             $validation_rules = [
-                ['label' => 'Category', 'key' => 'category_id', 'validations' => 'required'],
-                ['label' => 'Product Name', 'key' => 'name', 'validations' => 'required'],
-                ['label' => 'Status', 'key' => 'is_active', 'validations' => 'required'],
-                ['label' => 'Stock Qty', 'key' => 'stock_quantity', 'validations' => 'required'],
-                ['label' => 'Low Stock Value', 'key' => 'low_stock_threshold', 'validations' => 'required'],
-                ['label' => 'Unit of Measurement', 'key' => 'uoms', 'validations' => 'required'],
-                ['label' => 'Qty / Measure', 'key' => 'qty_measure', 'validations' => 'required'],
-                ['label' => 'Product Price', 'key' => 'product_price', 'validations' => 'required'],
-                ['label' => 'Selling Price', 'key' => 'selling_price', 'validations' => 'required'],
+                ['label' => 'UPI Name', 'key' => 'upi_name', 'validations' => 'required'],
+                ['label' => 'Status', 'key' => 'is_active', 'validations' => 'required']
             ];
             foreach ($validation_rules as $rule)
                 $this->form_validation->set_rules($rule['key'], $rule['label'], $rule['validations']);
 
 
+            // Run validation
+            if ($this->form_validation->run() == FALSE) {
+                // Validation failed, prepare response with errors
+                $errors = $this->form_validation->error_array();
+
+                $this->sendHTTPResponse(422, [
+                    'status' => 422,
+                    'error' => 'Unprocessable Entity',
+                    'message' => 'The submitted data failed validation.',
+                    'validation_errors' => $errors
+                ]);
+                return;
+            }
+
             // Retrieve POST data and sanitize it
             $data = $this->input->post();
             $data = array_map([$this->security, 'xss_clean'], $data);
 
-            // Upload Files
-            // Directory to upload files
-            $uploadPath = './uploads/product_images/';
-            $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'JPG', 'JPEG', 'PNG', 'GIF', 'SVG', 'WEBP'];
-            $uploadedFiles = null;
 
-            // Check if files are attached
-            if (!empty($_FILES['product_image']['name'][0])) {
-                $uploadedFiles = upload_multiple_files($_FILES['product_image'], $uploadPath, $allowedTypes);
+            // Check data is already created with given filter
+            $upi = $this->UPI_model->get_upi_by_name($data['upi_name']);
+            if (!empty($upi)) {
+                $this->sendHTTPResponse(409, [
+                    'status' => 'error',
+                    'code' => 409,
+                    'error' => 'UPI is already defined in the system.',
+                    'message' => 'UPI is already defined in the system.'
+                ]);
+                return;
             }
 
-            $data['product_images'] = $uploadedFiles ?? [];
+            $allowedTypes = 'jpg|jpeg|png|gif|webp|svg';
 
+            // Process qr_code_image file upload
+            $data['qr_code_image'] = upload_single_file('qr_code_image', './uploads/upi/', $allowedTypes);
 
             // Save Data to the product table
-            $createdProduct = $this->Product_model->add_product($data, $isAuthorized['userid']);
+            $createdUPI = $this->UPI_model->add_upi($data, $isAuthorized['userid']);
 
-            if ($createdProduct) {
+            if ($createdUPI) {
                 $this->sendHTTPResponse(201, [
                     'status' => 201,
-                    'message' => "Product Saved Successfully.",
+                    'message' => "UPI Saved Successfully.",
                     'type' => 'insert',
-                    'data' => $createdProduct,
+                    'data' => $createdUPI,
                 ]);
             } else {
-                throw new Exception('Failed to create new Product.');
+                throw new Exception('Failed to create new upi.');
             }
         } catch (Exception $e) {
             // Catch any unexpected errors and respond with a standardized error
@@ -173,7 +166,7 @@ class Products extends App_controller
         }
     }
 
-    public function details($productID)
+    public function details($upiID)
     {
         // Check if the authentication is valid
         $isAuthorized = $this->isAuthorized();
@@ -187,28 +180,28 @@ class Products extends App_controller
         };
 
         // Validate input and check if `productUUID` is provided
-        if (!isset($productID)) {
+        if (!isset($upiID)) {
             return $this->output
                 ->set_status_header(400)
                 ->set_content_type('application/json')
                 ->set_output(json_encode([
                     'status' => 'error',
                     'code' => 400,
-                    'message' => 'Invalid product ID, Please provide product id to fetch details.'
+                    'message' => 'Invalid upi ID, Please provide upi id to fetch details.'
                 ]));
         }
 
-        $product = $this->Product_model->get_product_by_id($productID);
+        $upi = $this->UPI_model->get_upi_by_id($upiID);
 
         // Check if product data exists
-        if (empty($product)) {
+        if (empty($upi)) {
             return $this->output
                 ->set_status_header(404)
                 ->set_content_type('application/json')
                 ->set_output(json_encode([
                     'status' => 'error',
                     'code' => 404,
-                    'message' => 'product details not found.'
+                    'message' => 'upi details not found.'
                 ]));
         }
 
@@ -219,8 +212,8 @@ class Products extends App_controller
             ->set_output(json_encode([
                 'status' => 'success',
                 'code' => 200,
-                'message' => 'product details retrieved successfully',
-                'data' => $product
+                'message' => 'upi details retrieved successfully',
+                'data' => $upi
             ]));
     }
 
@@ -250,15 +243,8 @@ class Products extends App_controller
 
             // Set validation rules
             $validation_rules = [
-                ['label' => 'Category', 'key' => 'category_id', 'validations' => 'required'],
-                ['label' => 'Product Name', 'key' => 'name', 'validations' => 'required'],
-                ['label' => 'Status', 'key' => 'is_active', 'validations' => 'required'],
-                ['label' => 'Stock Qty', 'key' => 'stock_quantity', 'validations' => 'required'],
-                ['label' => 'Low Stock Value', 'key' => 'low_stock_threshold', 'validations' => 'required'],
-                ['label' => 'Unit of Measurement', 'key' => 'uoms', 'validations' => 'required'],
-                ['label' => 'Qty / Measure', 'key' => 'qty_measure', 'validations' => 'required'],
-                ['label' => 'Product Price', 'key' => 'product_price', 'validations' => 'required'],
-                ['label' => 'Selling Price', 'key' => 'selling_price', 'validations' => 'required'],
+                ['label' => 'UPI Name', 'key' => 'upi_name', 'validations' => 'required'],
+                ['label' => 'Status', 'key' => 'is_active', 'validations' => 'required']
             ];
             foreach ($validation_rules as $rule)
                 $this->form_validation->set_rules($rule['key'], $rule['label'], $rule['validations']);
@@ -283,42 +269,34 @@ class Products extends App_controller
 
 
             // Check data is already created with given filter
-            $product = $this->Product_model->get_product_by_id($id);
-            if (empty($product)) {
+            $upi = $this->UPI_model->get_upi_by_id($id);
+            if (empty($upi)) {
                 $this->sendHTTPResponse(404, [
                     'status' => 'error',
                     'code' => 404,
-                    'error' => 'product details not found with provided ID',
-                    'message' => 'product details not found with provided ID'
+                    'error' => 'upi details not found with provided ID',
+                    'message' => 'upi details not found with provided ID'
                 ]);
                 return;
             }
 
-            // Upload Files
-            // Directory to upload files
-            $uploadPath = './uploads/product_images/';
-            $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'JPG', 'JPEG', 'PNG', 'GIF', 'SVG', 'WEBP'];
-            $uploadedFiles = null;
+            $allowedTypes = 'jpg|jpeg|png|gif|webp|svg';
 
-            // Check if files are attached
-            if (!empty($_FILES['product_image']['name'][0])) {
-                $uploadedFiles = upload_multiple_files($_FILES['product_image'], $uploadPath, $allowedTypes);
-            }
-
-            $data['product_images'] = $uploadedFiles ?? [];
+            // Process qr_code_image file upload
+            $data['qr_code_image'] = upload_single_file('qr_code_image', './uploads/upi/', $allowedTypes);
 
             // Save Data to the product table
-            $updateProduct = $this->Product_model->update_product($id, $data, $isAuthorized['userid']);
+            $updatedUPI = $this->UPI_model->update_upi($id, $data, $isAuthorized['userid']);
 
-            if ($updateProduct) {
+            if ($updatedUPI) {
                 $this->sendHTTPResponse(201, [
                     'status' => 201,
-                    'message' => "Category [" . $updateProduct['name'] . "] Updated Successfully.",
+                    'message' => "UPI [" . $updatedUPI['upi_name'] . "] Updated Successfully.",
                     'type' => 'update',
-                    'data' => $updateProduct,
+                    'data' => $updatedUPI,
                 ]);
             } else {
-                throw new Exception('Failed to update category details.');
+                throw new Exception('Failed to update upi details.');
             }
         } catch (Exception $e) {
             // Catch any unexpected errors and respond with a standardized error
@@ -358,23 +336,23 @@ class Products extends App_controller
             $this->output
                 ->set_content_type('application/json')
                 ->set_status_header(400) // 400 Bad Request status code
-                ->set_output(json_encode(['message' => 'Invalid product ID.']));
+                ->set_output(json_encode(['message' => 'Invalid upi ID.']));
             return;
         }
 
         // Attempt to delete the Request
-        $product = $this->Product_model->get_product_by_id($id);
-        $result = $this->Product_model->delete_product_by_id($id);
+        $upi = $this->UPI_model->get_upi_by_id($id);
+        $result = $this->UPI_model->delete_upi_by_id($id);
         if ($result) {
             $this->output
                 ->set_content_type('application/json')
                 ->set_status_header(200) // 200 OK status code
-                ->set_output(json_encode(['status' => true, 'message' => "Category $product[name] deleted successfully."]));
+                ->set_output(json_encode(['status' => true, 'message' => "UPI $upi[upi_name] deleted successfully."]));
         } else {
             $this->output
                 ->set_content_type('application/json')
                 ->set_status_header(500) // 500 Internal Server Error status code
-                ->set_output(json_encode(['status' => false, 'message' => 'Failed to delete category.']));
+                ->set_output(json_encode(['status' => false, 'message' => 'Failed to delete upi.']));
         }
     }
 }

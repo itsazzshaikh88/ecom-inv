@@ -33,16 +33,6 @@ $usertype = strtolower($loggedInUser['usertype']) ?? 'guest';
                         </a>
                     </div>
                     <div class="nav-item-wrapper">
-                        <a class="nav-link label-1" href="subcategories" role="button" data-bs-toggle="" aria-expanded="false">
-                            <div class="d-flex align-items-center">
-                                <span class="nav-link-icon"><i class="fa-solid fa-folder-tree"></i></span>
-                                <span class="nav-link-text-wrapper">
-                                    <span class="nav-link-text">Sub Categories</span>
-                                </span>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="nav-item-wrapper">
                         <a class="nav-link label-1" href="products" role="button" data-bs-toggle="" aria-expanded="false">
                             <div class="d-flex align-items-center">
                                 <span class="nav-link-icon"><i class="fa-solid fa-boxes-stacked"></i></span>
@@ -55,9 +45,45 @@ $usertype = strtolower($loggedInUser['usertype']) ?? 'guest';
                 </li>
                 <li class="nav-item">
                     <!-- label-->
-                    <p class="navbar-vertical-label">Orders</p>
+                    <p class="navbar-vertical-label">Storefront Management</p>
                     <hr class="navbar-vertical-line" /><!-- parent pages-->
                     <div class="d-flex flex-column gap-1" id="sidebarProjectListContainer"></div>
+                </li>
+                <div class="nav-item-wrapper">
+                    <a class="nav-link label-1" href="orders/users" role="button" data-bs-toggle="" aria-expanded="false">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon"><i class="fa-solid fa-users"></i></span>
+                            <span class="nav-link-text-wrapper">
+                                <span class="nav-link-text">Order Users</span>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+                <div class="nav-item-wrapper">
+                    <a class="nav-link label-1" href="orders" role="button" data-bs-toggle="" aria-expanded="false">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon"><i class="fa-solid fa-boxes-stacked"></i></span>
+                            <span class="nav-link-text-wrapper">
+                                <span class="nav-link-text">Orders</span>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+                <li class="nav-item">
+                    <!-- label-->
+                    <p class="navbar-vertical-label">Settings & Masters</p>
+                    <hr class="navbar-vertical-line" /><!-- parent pages-->
+
+                    <div class="nav-item-wrapper">
+                        <a class="nav-link label-1" href="upi" role="button" data-bs-toggle="" aria-expanded="false">
+                            <div class="d-flex align-items-center">
+                                <span class="nav-link-icon"><i class="fa-solid fa-layer-group"></i></span>
+                                <span class="nav-link-text-wrapper">
+                                    <span class="nav-link-text">UPI Management</span>
+                                </span>
+                            </div>
+                        </a>
+                    </div>
                 </li>
                 <li class="nav-item">
                     <!-- label-->

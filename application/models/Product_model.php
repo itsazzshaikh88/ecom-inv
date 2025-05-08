@@ -15,10 +15,10 @@ class Product_model extends CI_Model
     {
         $offset = get_limit_offset($currentPage, $limit);
 
-        $this->db->select("p.id, p.name, p.slug, p.description, p.short_description, p.category_id, p.sub_category_id, p.brand_id, p.sku, p.barcode, p.stock_quantity, p.low_stock_threshold, p.is_featured, p.is_active, p.created_at, p.updated_at, c.name as category_name, s.name as subcategory_name");
+        $this->db->select("p.id, p.name, p.slug, p.description, p.short_description, p.category_id, p.sub_category_id, p.brand_id, p.sku, p.barcode, p.stock_quantity, p.low_stock_threshold, p.is_featured, p.is_active, p.created_at, p.updated_at, p.selling_price, p.product_price, p.uoms, p.qty_measure,p.images, c.name as category_name, u.name as unit_name, u.abbreviation as unit_abbrevation");
         $this->db->from($this->product_table . " p");
         $this->db->join("categories c", " c.category_id = p.category_id", 'left');
-        $this->db->join("subcategories s", " s.subcategory_id = p.sub_category_id", 'left');
+        $this->db->join("units_of_measurement u", " u.id = p.uoms", 'left');
         $this->db->order_by("p.id", "DESC");
 
         // Apply filters dynamically from the $filters array
@@ -51,24 +51,12 @@ class Product_model extends CI_Model
     }
     function get_product_by_id($id)
     {
-        $this->db->select('p.*, c.name as category_name , s.name as subcategory_name')
+        $this->db->select('p.*, c.name as category_name')
             ->from('products p')
             ->join('categories c', 'c.category_id = p.category_id', 'left')
-            ->join('subcategories s', 's.subcategory_id = p.sub_category_id', 'left')
             ->where('p.id', $id)
             ->order_by('p.name', 'ASC'); // Order by product name (you can change it as needed)
-        $product['product'] = $this->db->get()->row_array();
-
-        $product['images'] = $this->db->select('i.*')
-            ->from('product_images i')
-            ->where('i.id', $id)
-            ->order_by('i.id', 'ASC');
-
-        $product['variants'] = $this->db->select('v.*')
-            ->from('product_variants v')
-            ->where('v.id', $id)
-            ->order_by('v.id', 'ASC');
-        return $product;
+        return $this->db->get()->row_array();
     }
     function add_product($data, $userid)
     {
@@ -76,81 +64,56 @@ class Product_model extends CI_Model
         $product_data = [
             'name' => $data['name'],
             'is_active' => $data['is_active'],
-            'short_description' => $data['short_description'],
             'description' => $data['description'],
             'category_id' => $data['category_id'],
-            'sub_category_id' => $data['sub_category_id'],
-            'brand_id' => $data['brand_id'] ?? null,
-            'sku' => $data['sku'],
-            'barcode' => $data['barcode'],
             'stock_quantity' => $data['stock_quantity'],
             'low_stock_threshold' => $data['low_stock_threshold'],
-            'is_featured' => $data['is_featured'] ? 1 : 0,
+            'uoms' => $data['uoms'],
+            'qty_measure' => $data['qty_measure'],
+            'product_price' => $data['product_price'],
+            'selling_price' => $data['selling_price'],
+            'images' => $data['product_images'] != [] ? json_encode($data['product_images']) : '',
+            'is_featured' => $data['is_featured'] == 'on' ? 1 : 0,
             'slug' => generate_slug($data['name'], $this->product_table, 'slug')
         ];
 
         if ($this->db->insert($this->product_table, $product_data)) {
             $new_product_id = $this->db->insert_id();
-            // Insert Data in Product Variants Table
-            $total_variants = count($data['unit_id'] ?? []);
-            // Insert data in Product Images Table
-            for ($i = 0; $i < $total_variants; $i++) {
-                $variant = [
-                    'product_id' => $new_product_id,
-                    'unit_id' => $data['unit_id'][$i],
-                    'measure' => $data['measure'][$i],
-                    'price' => $data['price'][$i],
-                    'sale_price' => $data['sale_price'][$i],
-                    'is_active' => 1
-                ];
-                $this->db->insert('product_variants', $variant);
-            }
-
-            // Insert product images
-            $total_images = count($data['product_images'] ?? []);
-            for ($j = 0; $j < $total_images; $j++) {
-                $image = [
-                    'product_id' => $new_product_id,
-                    'image_url' => $data['product_images'][$j],
-                    'is_main' => $j == 0 ? 1 : 0
-                ];
-                $this->db->insert('product_images', $image);
-            }
             return $this->get_product_by_id($new_product_id);
         } else {
             return false;
         }
     }
 
-    public function update_category($id, $data, $userid)
+    public function update_product($id, $data, $userid)
     {
         // supplier data
-        $category_data = [
+        $product_data = [
             'name' => $data['name'],
             'is_active' => $data['is_active'],
-            'alt_text' => $data['alt_text'],
             'description' => $data['description'],
-            'slug' => generate_slug($data['name'], $this->product_table, 'slug')
+            'category_id' => $data['category_id'],
+            'stock_quantity' => $data['stock_quantity'],
+            'low_stock_threshold' => $data['low_stock_threshold'],
+            'uoms' => $data['uoms'],
+            'qty_measure' => $data['qty_measure'],
+            'product_price' => $data['product_price'],
+            'selling_price' => $data['selling_price'],
+            'is_featured' => $data['is_featured'] == 'on' ? 1 : 0,
         ];
-        if ($data['banner_image_url']) {
-            $category_data['banner_image_url'] = $data['banner_image_url'];
-        }
-        if ($data['image_url']) {
-            $category_data['image_url'] = $data['image_url'];
-        }
 
-        if ($this->db->where('category_id', $id)->update($this->product_table, $category_data)) {
 
+        if ($this->db->where('id', $id)->update($this->product_table, $product_data)) {
             return $this->get_product_by_id($id);
         } else {
             return false;
         }
     }
-    public function delete_category_by_id($userID)
+    public function delete_product_by_id($userID)
     {
         $this->db->trans_start();
 
-        $this->db->delete($this->product_table, array('category_id' => $userID));
+        $this->db->delete($this->product_table, array('id' => $userID));
 
         $this->db->trans_complete();
 

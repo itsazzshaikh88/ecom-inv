@@ -46,7 +46,7 @@
             </div>
             <div class="row mt-4">
                 <div class="col-md-12 text-center">
-                    <button class="btn btn-sm btn-success" id="submit-btn"> <i class="fa-solid fa-plus"></i> Save Role Details</button>
+                    <button class="btn btn-sm btn-success" id="submit-btn"> <i class="fa-solid fa-plus"></i> Save Category</button>
                 </div>
             </div>
         </div>
